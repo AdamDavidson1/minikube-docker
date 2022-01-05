@@ -2,14 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>Label</key>
-    <string>com.coredigital.minikubemachine</string>
+    <key>Vpnkit</key>
+    <string>com.coredigital.vpnkit</string>
     <key>ProgramArguments</key>
     <array>
-      <string>/usr/local/bin/minikube</string>
-      <string>start</string>
+      <string>/opt/local/bin/vpnkit</string>
+      <string>--ethernet</string>
+      <string>/var/run/vpnkit.socket</string>
     </array>
     <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
     <true/>
   </dict>
 </plist>
