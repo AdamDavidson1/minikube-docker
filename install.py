@@ -72,4 +72,4 @@ if os.system("minikube status") == 0:
 if os.system("~/bin/start-minikube.sh") > 1:
     failure()
 os.system("minikube kubectl -- get pods -A")
-os.system("osascript -e 'tell application \"System Events\" to make login item at end with properties {name:\"Minikube Docker\", path:\"/User/" + user + "/bin/start-minikube.sh\", hidden:true}'")
+os.system("osascript -e 'tell application \"System Events\" to make login item at end with properties {name:\"Minikube Docker\", path:\"/Users/" + user + "/bin/start-minikube.sh\", hidden:true}'")
