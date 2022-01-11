@@ -1,0 +1,4 @@
+#!/bin/sh
+
+touch /Users/adavidson/Desktop/test.txt
+exit 1

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "" > /var/log/minikube_install.log
+pwd >> /var/log/minikube_install.log
+ls . >> /var/log/minikube_install.log
+"Testing? $0" >> /var/log/minikube_install.log
+python ./install.py >> /var/log/minikube_install.log 2>&1
+exit 0

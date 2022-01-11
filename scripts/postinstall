@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# touch /Applications/test.txt
+export PATH="/opt/local/bin:$PATH"
+export MINIKUBE_HOME="$2/Minikube Docker.app/Contents/Resources"
+export HOME_ESCAPED="$2/Minikube\ Docker.app/Contents/Resources"
+export HOME="$2/Minikube Docker.app/Contents/Resources"
+echo "postinstall running $MINIKUBE_HOME " >> /var/log/minikube_install.log
+
+pkill hyperkit
+mv /var/db/dhcpd_leases /var/db/dhcpd_leases.bak
+mkdir -p "$MINIKUBE_HOME/.minikube"
+chmod 777 "$MINIKUBE_HOME/.minikube"
+chown -R cdmadmin "$MINIKUBE_HOME/.minikube"
+minikube start --force --driver=hyperkit --hyperkit-vpnkit-sock=/var/run/vpnkit.socket >> /var/log/minikube_install.log 2>&1
+chgrp -R 1253756033 "$MINIKUBE_HOME/.minikube"
+chown -R cdmadmin "$MINIKUBE_HOME/.minikube"
+
+chown root:wheel "$MINIKUBE_HOME/.minikube/bin/docker-machine-driver-hyperkit"
+chmod u+s "$MINIKUBE_HOME/.minikube/bin/docker-machine-driver-hyperkit"
+
+# /bin/sh -c "PATH=\"/opt/local/bin:$PATH\" sudo ${HOME_ESCAPED}/start-minikube.sh" >> /var/log/minikube_install.log 2>&1
+minikube kubectl -- get pods -A  >> /var/log/minikube_install.log 2>&1
+export UUID=`ps ax | grep hyperkit | egrep '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' -o`
+export CLUSTER_IP=`minikube ip`
+
+if [[ "$CLUSTER_IP" != *"192.168"* ]]
+ then
+   echo $CLUSTER_IP >> /var/log/minikube_install.log 
+   exit 1
+fi
+
+sed -ibak 's/^.* local.cdm$//g' /etc/hosts
+rm /etc/hosts.bak
+sed -ibak '/^$/d' /etc/hosts  
+rm /etc/hosts.bak
+sed -ibak "s/^export MINIKUBE_UUID=$/export MINIKUBE_UUID=$UUID/g" "$MINIKUBE_HOME/start-minikube.sh"
+rm "$MINIKUBE_HOME/start-minikube.sh.bak"
+echo "$CLUSTER_IP local.cdm" >> /etc/hosts
+minikube stop
+minikube delete
+
+mv /var/db/dhcpd_leases /var/db/dhcpd_leases.1bak
+
+python afterinstall.py "$MINIKUBE_HOME"  >> /var/log/minikube_install.log 2>&1
+
+
+echo "postinstall complete" >> /var/log/minikube_install.log
+exit 0
