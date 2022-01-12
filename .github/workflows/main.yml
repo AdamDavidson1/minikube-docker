@@ -35,6 +35,10 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run build
         run: ./build.sh
+      - name: Get release notes
+        id: release_notes
+        run: |
+          echo "::set-output name=NOTES::$(git tag -l --format='%(contents:subject)')"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -43,10 +47,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+          body: ${{ steps.release_notes.outputs.NOTES }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
@@ -57,5 +58,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
           asset_path: ./Minikube Docker.pkg
-          asset_name: Minikube Docker-${{ github.ref }}.pkg
+          asset_name: Minikube Docker-${{ github.ref_name }}.pkg
           asset_content_type: application/x-newton-compatible-pkg
